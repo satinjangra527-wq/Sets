@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class XI - Mathematics: Set Theory Formulas & Key Words</title>
+
+<!-- KaTeX CSS and JS CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+onload="initKaTeX();"></script>
+
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Google Fonts (Inter & Outfit) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          heading: ['"Outfit"', 'sans-serif'],
+        },
+        colors: {
+          darkBg: '#090D16',
+          cardBg: 'rgba(17, 24, 39, 0.7)',
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  /* Custom scrollbar and animations */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #090d16;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1f293d;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6;
+  }
+
+  body {
+    background-color: #080c14;
+    color: #f3f4f6;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.12) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Glassmorphism Styles */
+  .glass-panel {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-card {
+    background: rgba(20, 30, 50, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Color Theme Gradients for Cards */
+  .theme-blue {
+    border-top: 4px solid #3b82f6;
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+  .theme-purple {
+    border-top: 4px solid #a855f7;
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+  .theme-emerald {
+    border-top: 4px solid #10b981;
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+  .theme-amber {
+    border-top: 4px solid #f59e0b;
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+  .theme-pink {
+    border-top: 4px solid #ec4899;
+    background: linear-gradient(180deg, rgba(236, 72, 153, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+  .theme-cyan {
+    border-top: 4px solid #06b6d4;
+    background: linear-gradient(180deg, rgba(6, 182, 212, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+  .theme-rose {
+    border-top: 4px solid #f43f5e;
+    background: linear-gradient(180deg, rgba(244, 63, 94, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+  .theme-indigo {
+    border-top: 4px solid #6366f1;
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  }
+
+  /* Text Gradients */
+  .gradient-title {
+    background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* KaTeX Customizations for high readability on dark background */
+  .katex-display {
+    margin: 0.8em 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5em 0;
+  }
+  .katex {
+    font-size: 1.15em !important;
+    color: #ffffff !important;
+  }
+  
+  .formula-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+  }
+
+  /* Toast Notification */
+  #toast {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+  }
+</style>
+
+<script>
+  function initKaTeX() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      throwOnError: false
+    });
+  }
+</script>
+</head>
+
+<body class="min-h-screen flex flex-col font-sans pb-12 antialiased selection:bg-purple-500 selection:text-white">
+
+  <!-- Header Banner -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-gray-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <i class="fa-solid font-bold text-xl text-white">$$\mathbb{S}$$</i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Class XI</span>
+              <span class="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">Mathematics</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-extrabold font-heading gradient-title tracking-tight mt-0.5">
+              Set Theory Reference Guide
+            </h1>
+          </div>
+        </div>
+
+        <!-- Search Bar & Controls -->
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <div class="relative flex-1 md:w-72">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input 
+              type="text" 
+              id="searchInput"
+              onkeyup="filterContent()" 
+              placeholder="Search formulas or keywords..." 
+              class="w-full bg-gray-900/80 text-sm text-gray-200 placeholder-gray-500 pl-10 pr-4 py-2.5 rounded-xl border border-gray-700/80 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            >
+          </div>
+          <button 
+            onclick="resetFilters()"
+            title="Reset Filters"
+            class="px-3 py-2.5 bg-gray-800/80 hover:bg-gray-700 text-gray-300 rounded-xl border border-gray-700/80 transition-all text-sm font-medium flex items-center gap-2"
+          >
+            <i class="fa-solid fa-rotate-left"></i>
+            <span class="hidden sm:inline">Reset</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Quick Navigation Tabs -->
+      <nav class="flex items-center space-x-2 overflow-x-auto pt-4 pb-1 no-scrollbar text-xs font-medium text-gray-400">
+        <a href="#section-1" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-blue-600/20 hover:text-blue-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-hashtag mr-1 text-blue-400"></i>1. Cardinality Formulas
+        </a>
+        <a href="#section-2" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-purple-600/20 hover:text-purple-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-layer-group mr-1 text-purple-400"></i>2. Three Sets Formula
+        </a>
+        <a href="#section-3" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-emerald-600/20 hover:text-emerald-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i>3. De Morgan's Laws
+        </a>
+        <a href="#section-4" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-amber-600/20 hover:text-amber-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-arrows-split-up-and-left mr-1 text-amber-400"></i>4. Distributive Laws
+        </a>
+        <a href="#section-5" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-pink-600/20 hover:text-pink-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-circle-nodes mr-1 text-pink-400"></i>5. Complement & Involution
+        </a>
+        <a href="#section-6" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-cyan-600/20 hover:text-cyan-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-minus mr-1 text-cyan-400"></i>6. Difference Laws
+        </a>
+        <a href="#section-7" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-rose-600/20 hover:text-rose-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-arrows-rotate mr-1 text-rose-400"></i>7. Commutative & Associative
+        </a>
+        <a href="#section-8" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-indigo-600/20 hover:text-indigo-300 transition-all border border-gray-700/50 whitespace-nowrap">
+          <i class="fa-solid fa-equals mr-1 text-indigo-400"></i>8. Identity & Idempotent
+        </a>
+        <a href="#section-9" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-rose-600/20 hover:text-rose-300 transition-all border border-gray-700/50 whitespace-nowrap">
+  <i class="fa-solid fa-calculator mr-1 text-rose-400"></i>9. Numerical De Morgan
+</a>
+<a href="#section-10" class="px-3 py-1.5 rounded-lg bg-gray-800/60 hover:bg-indigo-600/20 hover:text-indigo-300 transition-all border border-gray-700/50 whitespace-nowrap">
+  <i class="fa-solid fa-microchip mr-1 text-indigo-400"></i>10. Venn Generator
+</a>
+
+
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex-1 w-full space-y-12">
+
+    <!-- SECTION 1: CARDINALITY FORMULAS -->
+    <section id="section-1" class="scroll-mt-32">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <i class="fa-solid fa-calculator text-xl"></i>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold font-heading text-white">1. Cardinality (Numerical) Formulas & Key Words</h2>
+          <p class="text-sm text-gray-400">Essential set counting formulas and problem identification keywords</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6" id="cardinalityGrid">
+
+        <!-- 1.1 Union -->
+        <div class="card-item glass-card theme-blue rounded-2xl p-6 flex flex-col justify-between" data-search="union cardinality at least one either a or b total or n(A U B)">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md border border-blue-500/20">Section 1.1</span>
+              <button onclick="copyText('n(A \\cup B) = n(A) + n(B) - n(A \\cap B)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.1 Union for Two Sets</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(A \cup B) = n(A) + n(B) - n(A \cap B)$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-blue-950/60 border border-blue-800/50 text-blue-200 text-xs rounded-lg font-medium">"At least one"</span>
+                <span class="px-2.5 py-1 bg-blue-950/60 border border-blue-800/50 text-blue-200 text-xs rounded-lg font-medium">"Either A or B"</span>
+                <span class="px-2.5 py-1 bg-blue-950/60 border border-blue-800/50 text-blue-200 text-xs rounded-lg font-medium">"Total / Total students/people"</span>
+                <span class="px-2.5 py-1 bg-blue-950/60 border border-blue-800/50 text-blue-200 text-xs rounded-lg font-medium">"Or"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.2 Intersection -->
+        <div class="card-item glass-card theme-purple rounded-2xl p-6 flex flex-col justify-between" data-search="intersection cardinality both common and n(A cap B)">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md border border-purple-500/20">Section 1.2</span>
+              <button onclick="copyText('n(A \\cap B) = n(A) + n(B) - n(A \\cup B)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.2 Intersection for Two Sets</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(A \cap B) = n(A) + n(B) - n(A \cup B)$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-purple-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-purple-950/60 border border-purple-800/50 text-purple-200 text-xs rounded-lg font-medium">"Both"</span>
+                <span class="px-2.5 py-1 bg-purple-950/60 border border-purple-800/50 text-purple-200 text-xs rounded-lg font-medium">"Common (elements present in both)"</span>
+                <span class="px-2.5 py-1 bg-purple-950/60 border border-purple-800/50 text-purple-200 text-xs rounded-lg font-medium">"And"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.3 Only A -->
+        <div class="card-item glass-card theme-emerald rounded-2xl p-6 flex flex-col justify-between" data-search="only A A but not B difference n(A - B)">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Section 1.3</span>
+              <button onclick="copyText('n(A - B) = n(A) - n(A \\cap B) = n(A \\cup B) - n(B)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.3 Only A ($A - B$)</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(A - B) = n(A) - n(A \cap B) = n(A \cup B) - n(B)$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-emerald-950/60 border border-emerald-800/50 text-emerald-200 text-xs rounded-lg font-medium">"Only A"</span>
+                <span class="px-2.5 py-1 bg-emerald-950/60 border border-emerald-800/50 text-emerald-200 text-xs rounded-lg font-medium">"A but not B"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.4 Only B -->
+        <div class="card-item glass-card theme-amber rounded-2xl p-6 flex flex-col justify-between" data-search="only B B but not A difference n(B - A)">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">Section 1.4</span>
+              <button onclick="copyText('n(B - A) = n(B) - n(A \\cap B) = n(A \\cup B) - n(A)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.4 Only B ($B - A$)</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(B - A) = n(B) - n(A \cap B) = n(A \cup B) - n(A)$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-amber-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-amber-950/60 border border-amber-800/50 text-amber-200 text-xs rounded-lg font-medium">"Only B"</span>
+                <span class="px-2.5 py-1 bg-amber-950/60 border border-amber-800/50 text-amber-200 text-xs rounded-lg font-medium">"B but not A"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.5 Cartesian Product -->
+        <div class="card-item glass-card theme-pink rounded-2xl p-6 flex flex-col justify-between" data-search="cartesian product ordered pairs n(A x B)">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-pink-400 bg-pink-500/10 px-2.5 py-1 rounded-md border border-pink-500/20">Section 1.5</span>
+              <button onclick="copyText('n(A \\times B) = n(A) \\times n(B)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.5 Cartesian Product</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(A \times B) = n(A) \times n(B)$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-pink-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-pink-950/60 border border-pink-800/50 text-pink-200 text-xs rounded-lg font-medium">"Cartesian Product"</span>
+                <span class="px-2.5 py-1 bg-pink-950/60 border border-pink-800/50 text-pink-200 text-xs rounded-lg font-medium">"Ordered pairs (total number of ordered pairs)"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.6 Complement Count -->
+        <div class="card-item glass-card theme-cyan rounded-2xl p-6 flex flex-col justify-between" data-search="complement count not A complement of A n(A')">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20">Section 1.6</span>
+              <button onclick="copyText('n(A\') = n(U) - n(A)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.6 Complement Count</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(A') = n(U) - n(A)$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-cyan-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-cyan-950/60 border border-cyan-800/50 text-cyan-200 text-xs rounded-lg font-medium">"Not A"</span>
+                <span class="px-2.5 py-1 bg-cyan-950/60 border border-cyan-800/50 text-cyan-200 text-xs rounded-lg font-medium">"Complement of A"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.7 Symmetric Difference -->
+        <div class="card-item glass-card theme-rose rounded-2xl p-6 flex flex-col justify-between" data-search="symmetric difference exactly one of them n(A delta B)">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/20">Section 1.7</span>
+              <button onclick="copyText('n(A \\Delta B) = n(A - B) + n(B - A) = n(A \\cup B) - n(A \\cap B)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.7 Symmetric Difference</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(A \Delta B) = n(A - B) + n(B - A) = n(A \cup B) - n(A \cap B)$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-rose-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-rose-950/60 border border-rose-800/50 text-rose-200 text-xs rounded-lg font-medium">"Exactly one of them (either only A or only B)"</span>
+                <span class="px-2.5 py-1 bg-rose-950/60 border border-rose-800/50 text-rose-200 text-xs rounded-lg font-medium">"Symmetric Difference"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.8 Disjoint Sets -->
+        <div class="card-item glass-card theme-indigo rounded-2xl p-6 flex flex-col justify-between" data-search="disjoint sets mutually exclusive nothing in common empty null set phi n(A cap B) = 0">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">Section 1.8</span>
+              <button onclick="copyText('n(A \\cup B) = n(A) + n(B) \\iff A, B \\text{ are disjoint sets}')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2">1.8 Disjoint Sets</h3>
+            <div class="formula-box p-4 rounded-xl mb-4 text-center">
+              $$n(A \cup B) = n(A) + n(B) \iff A, B \text{ are disjoint sets}$$
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-indigo-950/60 border border-indigo-800/50 text-indigo-200 text-xs rounded-lg font-medium">"Disjoint sets (sets with no common elements)"</span>
+                <span class="px-2.5 py-1 bg-indigo-950/60 border border-indigo-800/50 text-indigo-200 text-xs rounded-lg font-medium">"Nothing in common / Mutually exclusive"</span>
+                <span class="px-2.5 py-1 bg-indigo-950/60 border border-indigo-800/50 text-indigo-200 text-xs rounded-lg font-medium">"When $n(A \cap B) = 0$ or $A \cap B = \phi$ (empty / null set) is given."</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: THREE SETS FORMULA -->
+    <section id="section-2" class="card-item scroll-mt-32" data-search="three sets formula n(A U B U C)">
+      <div class="glass-card theme-purple rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+        <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="p-2.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <i class="fa-solid fa-cubes text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold font-heading text-white">2. Formula for Three Sets</h2>
+          </div>
+          <button onclick="copyText('n(A \\cup B \\cup C) = n(A) + n(B) + n(C) - n(A \\cap B) - n(B \\cap C) - n(C \\cap A) + n(A \\cap B \\cap C)')" class="text-gray-400 hover:text-white text-xs bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700 transition" title="Copy Formula">
+            <i class="fa-regular fa-copy mr-1"></i>Copy Formula
+          </button>
+        </div>
+
+        <div class="formula-box p-6 rounded-2xl mb-6 text-center border-purple-500/20 shadow-xl">
+          $$n(A \cup B \cup C) = n(A) + n(B) + n(C) - n(A \cap B) - n(B \cap C) - n(C \cap A) + n(A \cap B \cap C)$$
+        </div>
+
+        <div class="bg-purple-950/40 border border-purple-800/40 rounded-xl p-4 flex items-start space-x-3">
+          <i class="fa-solid fa-circle-info text-purple-400 mt-1"></i>
+          <div>
+            <h4 class="text-sm font-semibold text-purple-200">Usage Application:</h4>
+            <p class="text-xs text-purple-300/80 mt-0.5">Used when three sets (such as A, B, and C) are given in the problem and total count is to be calculated.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 & 4 GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- SECTION 3: DE MORGAN'S LAWS -->
+      <section id="section-3" class="card-item scroll-mt-32" data-search="de morgan's laws demorgan complement union intersection">
+        <div class="glass-card theme-emerald rounded-3xl p-6 sm:p-8 h-full flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-3 mb-6">
+              <div class="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <i class="fa-solid fa-shield-halved text-xl"></i>
+              </div>
+              <h2 class="text-xl font-bold font-heading text-white">3. De Morgan's Laws</h2>
+            </div>
+
+            <div class="space-y-4">
+              <div class="formula-box p-4 rounded-xl relative group">
+                <button onclick="copyText('(A \\cup B)\' = A\' \\cap B\'')" class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white text-xs bg-gray-800/80 px-2 py-1 rounded transition">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+                $$(A \cup B)' = A' \cap B'$$
+              </div>
+              <div class="formula-box p-4 rounded-xl relative group">
+                <button onclick="copyText('(A \\cap B)\' = A\' \\cup B\'')" class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white text-xs bg-gray-800/80 px-2 py-1 rounded transition">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+                $$(A \cap B)' = A' \cup B'$$
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-emerald-400/80 mt-6"><i class="fa-solid fa-lightbulb mr-1"></i>Complement swaps Union $(\cup)$ with Intersection $(\cap)$ and vice-versa.</p>
+        </div>
+      </section>
+
+      <!-- SECTION 4: DISTRIBUTIVE LAWS -->
+      <section id="section-4" class="card-item scroll-mt-32" data-search="distributive laws union intersection algebra">
+        <div class="glass-card theme-amber rounded-3xl p-6 sm:p-8 h-full flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-3 mb-6">
+              <div class="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <i class="fa-solid fa-arrows-split-up-and-left text-xl"></i>
+              </div>
+              <h2 class="text-xl font-bold font-heading text-white">4. Distributive Laws</h2>
+            </div>
+
+            <div class="space-y-4">
+              <div class="formula-box p-4 rounded-xl relative group">
+                <button onclick="copyText('A \\cup (B \\cap C) = (A \\cup B) \\cap (A \\cup C)')" class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white text-xs bg-gray-800/80 px-2 py-1 rounded transition">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+                $$A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$$
+              </div>
+              <div class="formula-box p-4 rounded-xl relative group">
+                <button onclick="copyText('A \\cap (B \\cup C) = (A \\cap B) \\cup (A \\cap C)')" class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white text-xs bg-gray-800/80 px-2 py-1 rounded transition">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+                $$A \cap (B \cup C) = (A \cap B) \cup (A \cap C)$$
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-amber-400/80 mt-6"><i class="fa-solid fa-lightbulb mr-1"></i>Distributes operation over parentheses similar to algebraic multiplication.</p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SECTION 5: COMPLEMENT & INVOLUTION LAWS -->
+    <section id="section-5" class="card-item scroll-mt-32" data-search="complement involution laws universal empty null set phi (A')' = A">
+      <div class="glass-card theme-pink rounded-3xl p-6 sm:p-8">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="p-2.5 rounded-xl bg-pink-500/20 text-pink-300 border border-pink-500/30">
+            <i class="fa-solid fa-circle-nodes text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold font-heading text-white">5. Complement & Involution Laws</h2>
+            <p class="text-xs text-gray-400">Rules governing universal sets, empty sets, and double complements</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          
+          <div class="formula-box p-4 rounded-xl text-center flex flex-col justify-center items-center">
+            $$A \cup A' = U$$
+            <span class="text-xs text-pink-300/80 mt-1 font-medium">(Universal Set)</span>
+          </div>
+
+          <div class="formula-box p-4 rounded-xl text-center flex flex-col justify-center items-center">
+            $$A \cap A' = \phi$$
+            <span class="text-xs text-pink-300/80 mt-1 font-medium">(Empty Set / Null Set)</span>
+          </div>
+
+          <div class="formula-box p-4 rounded-xl text-center flex flex-col justify-center items-center">
+            $$(A')' = A$$
+            <span class="text-xs text-pink-300/80 mt-1 font-medium">(Involution Law - returning to original)</span>
+          </div>
+
+          <div class="formula-box p-4 rounded-xl text-center flex flex-col justify-center items-center">
+            $$U' = \phi$$
+            <span class="text-xs text-pink-300/80 mt-1 font-medium">(Complement of Universal is Null)</span>
+          </div>
+
+          <div class="formula-box p-4 rounded-xl text-center flex flex-col justify-center items-center sm:col-span-2 lg:col-span-2">
+            $$\phi' = U$$
+            <span class="text-xs text-pink-300/80 mt-1 font-medium">(Complement of Null is Universal)</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: LAWS RELATED TO DIFFERENCE -->
+    <section id="section-6" class="card-item scroll-mt-32" data-search="laws related to difference A - B A cap B' relative complement">
+      <div class="glass-card theme-cyan rounded-3xl p-6 sm:p-8">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+            <i class="fa-solid fa-minus text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold font-heading text-white">6. Laws Related to Difference</h2>
+            <p class="text-xs text-gray-400">Converting set difference into intersections and complements</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="formula-box p-4 rounded-xl relative group">
+            <span class="text-xs font-semibold text-cyan-400 block mb-1">Intersection Conversion:</span>
+            $$A - B = A \cap B'$$
+            <p class="text-xs text-gray-400 mt-2">(To convert difference into intersection)</p>
+          </div>
+
+          <div class="formula-box p-4 rounded-xl relative group">
+            <span class="text-xs font-semibold text-cyan-400 block mb-1">Reverse Difference:</span>
+            $$B - A = B \cap A'$$
+            <p class="text-xs text-gray-400 mt-2">(Difference of B and A)</p>
+          </div>
+
+          <div class="formula-box p-4 rounded-xl relative group">
+            <span class="text-xs font-semibold text-cyan-400 block mb-1">Difference over Union:</span>
+            $$A - (B \cup C) = (A - B) \cap (A - C)$$
+          </div>
+
+          <div class="formula-box p-4 rounded-xl relative group">
+            <span class="text-xs font-semibold text-cyan-400 block mb-1">Difference over Intersection:</span>
+            $$A - (B \cap C) = (A - B) \cup (A - C)$$
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: COMMUTATIVE & ASSOCIATIVE LAWS -->
+    <section id="section-7" class="card-item scroll-mt-32" data-search="commutative associative laws union intersection order grouping">
+      <div class="glass-card theme-rose rounded-3xl p-6 sm:p-8">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="p-2.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30">
+            <i class="fa-solid fa-arrows-rotate text-xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold font-heading text-white">7. Commutative & Associative Laws</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- 7.1 Commutative -->
+          <div class="bg-gray-900/60 border border-rose-500/20 rounded-2xl p-5">
+            <h3 class="text-lg font-bold text-rose-300 mb-4 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-400"></span> 7.1 Commutative Laws
+            </h3>
+            <div class="space-y-3">
+              <div class="formula-box p-3 rounded-xl">
+                $$A \cup B = B \cup A$$
+              </div>
+              <div class="formula-box p-3 rounded-xl">
+                $$A \cap B = B \cap A$$
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">Order of sets does not affect the result.</p>
+          </div>
+
+          <!-- 7.2 Associative -->
+          <div class="bg-gray-900/60 border border-rose-500/20 rounded-2xl p-5">
+            <h3 class="text-lg font-bold text-rose-300 mb-4 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-400"></span> 7.2 Associative Laws
+            </h3>
+            <div class="space-y-3">
+              <div class="formula-box p-3 rounded-xl">
+                $$(A \cup B) \cup C = A \cup (B \cup C)$$
+              </div>
+              <div class="formula-box p-3 rounded-xl">
+                $$(A \cap B) \cap C = A \cap (B \cap C)$$
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">Grouping of sets does not affect the result.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: IDENTITY & IDEMPOTENT LAWS -->
+    <section id="section-8" class="card-item scroll-mt-32" data-search="identity idempotent laws empty universal set phi U">
+      <div class="glass-card theme-indigo rounded-3xl p-6 sm:p-8">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            <i class="fa-solid fa-equals text-xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold font-heading text-white">8. Identity & Idempotent Laws</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- 8.1 Identity -->
+          <div class="bg-gray-900/60 border border-indigo-500/20 rounded-2xl p-5">
+            <h3 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> 8.1 Identity Laws
+            </h3>
+            <div class="space-y-3">
+              <div class="formula-box p-3 rounded-xl">
+                $$A \cup \phi = A$$
+              </div>
+              <div class="formula-box p-3 rounded-xl">
+                $$A \cap U = A$$
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">Empty set $\phi$ is identity for $\cup$; Universal set $U$ is identity for $\cap$.</p>
+          </div>
+
+          <!-- 8.2 Idempotent -->
+          <div class="bg-gray-900/60 border border-indigo-500/20 rounded-2xl p-5">
+            <h3 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> 8.2 Idempotent Laws
+            </h3>
+            <div class="space-y-3">
+              <div class="formula-box p-3 rounded-xl">
+                $$A \cup A = A$$
+              </div>
+              <div class="formula-box p-3 rounded-xl">
+                $$A \cap A = A$$
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">Operating a set with itself yields the same set.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- SECTION 9: NUMERICAL DE MORGAN'S LAWS (CARDINALITY) -->
+    <section id="section-9" class="card-item scroll-mt-32" data-search="de morgan numerical cardinality neither a nor b not both n((A U B)') n((A cap B)')">
+      <div class="glass-card theme-rose rounded-3xl p-6 sm:p-8">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="p-2.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30">
+            <i class="fa-solid fa-calculator text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold font-heading text-white">9. De Morgan's Laws (Numerical / Cardinality Formulas)</h2>
+            <p class="text-xs text-gray-400">Cardinality formulas derived from De Morgan's Laws for problem solving</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- 9.1 Neither A nor B -->
+          <div class="bg-gray-900/60 border border-rose-500/20 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/20">Section 9.1</span>
+                <button onclick="copyText('n[(A \\cup B)\'] = n(U) - n(A \\cup B) = n(A\' \\cap B\')')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                  <i class="fa-regular fa-copy mr-1"></i>Copy
+                </button>
+              </div>
+              <h3 class="text-lg font-bold text-gray-100 mb-2">Neither A nor B</h3>
+              <div class="formula-box p-4 rounded-xl mb-4 text-center">
+                $$n[(A \cup B)'] = n(U) - n(A \cup B) = n(A' \cap B')$$
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-rose-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-2.5 py-1 bg-rose-950/60 border border-rose-800/50 text-rose-200 text-xs rounded-lg font-medium">"Neither A nor B"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9.2 Not Both -->
+          <div class="bg-gray-900/60 border border-rose-500/20 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/20">Section 9.2</span>
+                <button onclick="copyText('n[(A \\cap B)\'] = n(U) - n(A \\cap B) = n(A\' \\cup B\')')" class="text-gray-400 hover:text-white text-xs bg-gray-800/60 px-2 py-1 rounded border border-gray-700 transition" title="Copy Formula">
+                  <i class="fa-regular fa-copy mr-1"></i>Copy
+                </button>
+              </div>
+              <h3 class="text-lg font-bold text-gray-100 mb-2">Not Both</h3>
+              <div class="formula-box p-4 rounded-xl mb-4 text-center">
+                $$n[(A \cap B)'] = n(U) - n(A \cap B) = n(A' \cup B')$$
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-rose-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-key mr-1.5"></i>Key Words:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-2.5 py-1 bg-rose-950/60 border border-rose-800/50 text-rose-200 text-xs rounded-lg font-medium">"Not Both"</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+    
+
+    
+    <!-- SECTION 10: INTERACTIVE VENN DIAGRAM GENERATOR LINK (DIRECT LINKING) -->
+    <section id="section-10" class="card-item scroll-mt-32" data-search="venn diagram generator interactive two pass command pipeline architecture visualizer tool 10 set theory boolean matrix">
+      <div class="glass-card theme-indigo rounded-3xl p-6 sm:p-8 lg:p-10 relative overflow-hidden group hover:border-indigo-400/80 transition-all duration-500 shadow-[0_10px_40px_-10px_rgba(99,102,241,0.25)] hover:shadow-[0_20px_50px_0px_rgba(99,102,241,0.4)]">
+        
+        <!-- Glowing Multi-Color Ambient Backdrop Blobs & Animated Gradient Orbs -->
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-gradient-to-br from-indigo-600/30 via-purple-600/20 to-pink-500/10 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-700"></div>
+        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-gradient-to-tr from-blue-600/20 via-indigo-600/20 to-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-700"></div>
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+        
+        <!-- Glass Shimmer Overlay Line -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+          
+          <!-- Content Left Side -->
+          <div class="space-y-4 text-center lg:text-left flex-1">
+            
+            <!-- Badges & Indicators -->
+            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 px-3.5 py-1 rounded-full border border-indigo-500/40 flex items-center gap-1.5 shadow-lg shadow-indigo-950/50 backdrop-blur-md">
+                <i class="fa-solid fa-microchip text-indigo-400 animate-pulse"></i> Two-Pass Engine
+              </span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-500/20 px-3.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-2 shadow-lg shadow-emerald-950/50 backdrop-blur-md">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                </span>
+                <span>Live Interactive Tool</span>
+              </span>
+            </div>
+            
+            <!-- Heading with Gradient Text -->
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-heading tracking-tight leading-tight bg-gradient-to-r from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent">
+              10. Interactive Venn Diagram Generator
+            </h2>
+            
+            <p class="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl font-normal">
+              Visualize set expressions like <span class="text-indigo-300 font-mono font-bold bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-700/60 shadow-inner inline-block my-0.5">(A ∩ B)'</span>, <span class="text-indigo-300 font-mono font-bold bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-700/60 shadow-inner inline-block my-0.5">A - B</span>, and <span class="text-indigo-300 font-mono font-bold bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-700/60 shadow-inner inline-block my-0.5">A Δ B</span> with real-time boolean shading maps, virtual mathematical keypad, and AST parsing pipeline.
+            </p>
+            
+            <!-- Interactive Features Pills -->
+            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-2 text-xs text-gray-200">
+              <div class="px-3.5 py-1.5 bg-slate-900/90 rounded-xl border border-indigo-500/30 hover:border-indigo-400/60 transition-colors flex items-center gap-2 shadow-md backdrop-blur-md">
+                <i class="fa-solid fa-code text-indigo-400"></i> AST Lexer & Parser
+              </div>
+              <div class="px-3.5 py-1.5 bg-slate-900/90 rounded-xl border border-purple-500/30 hover:border-purple-400/60 transition-colors flex items-center gap-2 shadow-md backdrop-blur-md">
+                <i class="fa-solid fa-layer-group text-purple-400"></i> 2 & 3 Set Diagrams
+              </div>
+              <div class="px-3.5 py-1.5 bg-slate-900/90 rounded-xl border border-emerald-500/30 hover:border-emerald-400/60 transition-colors flex items-center gap-2 shadow-md backdrop-blur-md">
+                <i class="fa-solid fa-table-list text-emerald-400"></i> Truth Map Matrix
+              </div>
+            </div>
+            
+          </div>
+          
+          <!-- Preview Canvas & Action Button Right Side -->
+          <div class="w-full lg:w-auto shrink-0 flex flex-col items-center gap-4">
+            
+            <!-- SVG Venn Visualizer Miniature Preview Card (Direct Link) -->
+            <a href="venn-diagram.html" class="group/preview block w-full max-w-[290px] p-4 bg-slate-950/80 hover:bg-slate-900/90 rounded-2xl border border-indigo-500/40 hover:border-indigo-400 transition-all duration-300 shadow-2xl relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-[11px] font-mono uppercase text-indigo-400 font-semibold flex items-center gap-1.5">
+                  <i class="fa-solid fa-eye text-xs animate-pulse"></i> Visual Engine Preview
+                </span>
+                <span class="text-[10px] bg-indigo-900/80 text-indigo-200 px-2.5 py-0.5 rounded-md font-mono border border-indigo-700/60 font-semibold shadow-sm">
+                  (A ∩ B)'
+                </span>
+              </div>
+              
+              <!-- Mini Venn Diagram Illustration -->
+              <div class="w-full h-32 relative flex items-center justify-center bg-slate-900/90 rounded-xl border border-slate-800 group-hover/preview:border-indigo-500/60 transition-colors overflow-hidden">
+                <svg viewBox="0 0 200 130" class="w-full h-full p-2">
+                  <defs>
+                    <clipPath id="miniClipA">
+                      <circle cx="80" cy="65" r="40" />
+                    </clipPath>
+                    <mask id="miniMaskAonly">
+                      <rect x="0" y="0" width="200" height="130" fill="white" />
+                      <circle cx="120" cy="65" r="40" fill="black" />
+                    </mask>
+                  </defs>
+                  <!-- Outer Universal U Box -->
+                  <rect x="5" y="5" width="190" height="120" rx="10" fill="rgba(99, 102, 241, 0.22)" stroke="#6366f1" stroke-width="1.5" />
+                  <!-- Set A Circles -->
+                  <circle cx="80" cy="65" r="40" fill="rgba(99, 102, 241, 0.25)" mask="url(#miniMaskAonly)" class="transition-transform duration-300 group-hover/preview:scale-105 origin-[80px_65px]" />
+                  <circle cx="80" cy="65" r="40" stroke="#a855f7" stroke-width="1.5" fill="none" class="transition-transform duration-300 group-hover/preview:scale-105 origin-[80px_65px]" />
+                  <!-- Set B Circles -->
+                  <circle cx="120" cy="65" r="40" fill="rgba(15, 23, 42, 0.85)" class="transition-transform duration-300 group-hover/preview:scale-105 origin-[120px_65px]" />
+                  <circle cx="120" cy="65" r="40" stroke="#ec4899" stroke-width="1.5" fill="none" class="transition-transform duration-300 group-hover/preview:scale-105 origin-[120px_65px]" />
+                  <!-- Intersection (Unshaded for (A ∩ B)') -->
+                  <circle cx="120" cy="65" r="40" clip-path="url(#miniClipA)" fill="rgba(15, 23, 42, 0.95)" />
+                  
+                  <text x="18" y="22" class="fill-indigo-300 text-[10px] font-mono font-bold">U</text>
+                  <text x="65" y="68" class="fill-purple-200 text-[11px] font-bold">A</text>
+                  <text x="135" y="68" class="fill-pink-200 text-[11px] font-bold">B</text>
+                </svg>
+              </div>
+            </a>
+            
+            <!-- Glowing Action Launch Button (Direct Link without target="_blank") -->
+            <a href="venn-diagram.html" class="w-full sm:w-auto min-w-[270px] px-8 py-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:via-indigo-400 hover:to-purple-500 text-white font-extrabold text-base rounded-2xl shadow-[0_10px_25px_-5px_rgba(99,102,241,0.5)] hover:shadow-[0_15px_35px_0px_rgba(99,102,241,0.7)] flex items-center justify-center gap-3 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 border border-indigo-300/40 group/btn relative overflow-hidden">
+            
+              <!-- Button Shimmer Line -->
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none"></div>
+              
+              <i class="fa-solid fa-rocket text-indigo-100 text-lg group-hover/btn:rotate-12 transition-transform"></i>
+              <span>Launch Venn Generator</span>
+              <i class="fa-solid fa-arrow-right text-base transition-transform group-hover/btn:translate-x-2"></i>
+            </a>
+            
+            <span class="text-[11px] text-gray-400 flex items-center gap-1.5 font-medium">
+              <i class="fa-solid fa-link text-[10px] text-indigo-400"></i> Go to <code class="text-indigo-300 font-mono bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-800/50">venn-diagram.html</code></span>
+          </div>
+          
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- No Results Placeholder -->
+    <div id="noResults" class="hidden text-center py-16 glass-panel rounded-3xl">
+      <i class="fa-solid fa-magnifying-glass text-4xl text-gray-600 mb-4"></i>
+      <h3 class="text-xl font-bold text-gray-300">No matching formulas found</h3>
+      <p class="text-sm text-gray-500 mt-1">Try searching for keywords like "union", "De Morgan", "complement", or "disjoint".</p>
+      <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold transition">
+        Clear Search
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-20 border-t border-gray-800/80 glass-panel py-8 text-center text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-medium text-gray-300">Class XI Mathematics — Set Theory Reference Sheet</p>
+      <p class="mt-1 text-gray-500">Rendered dynamically with KaTeX &amp; Tailwind CSS</p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 text-sm font-semibold opacity-0 translate-y-10 pointer-events-none">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMsg">Formula copied to clipboard!</span>
+  </div>
+
+  <script>
+    // Copy formula to clipboard
+    function copyText(text) {
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      showToast("LaTeX formula copied to clipboard!");
+    }
+
+    // Toast Notification logic
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = msg;
+
+      toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+      }, 2500);
+    }
+
+    // Filter content based on search query
+    function filterContent() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.card-item');
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const searchData = card.getAttribute('data-search') ? card.getAttribute('data-search').toLowerCase() : '';
+        const cardText = card.innerText.toLowerCase();
+
+        if (searchData.includes(query) || cardText.includes(query)) {
+          card.style.display = '';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      const noResults = document.getElementById('noResults');
+      if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+    }
+
+    // Reset filters
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      filterContent();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>वेन आरेख जनरेटर - Two-Pass Command Pipeline Architecture</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f5ff',
+                            100: '#e5edff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Hind', 'Inter', sans-serif; }
+        .font-code { font-family: 'JetBrains Mono', monospace; }
+        .venn-region {
+            transition: fill 0.25s ease, opacity 0.25s ease, filter 0.2s ease;
+            cursor: pointer;
+        }
+        .venn-region:hover {
+            fill-opacity: 0.85;
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+        }
+        .log-entry {
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <i class="fa-solid fa-microchip text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                        वेन आरेख जनरेटर (Two-Pass Architecture)
+                    </h1>
+                    <p class="text-xs text-slate-500">Pass 1: Pre-computation AST & Logic Map ➔ Pass 2: Render Command Pipeline</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-xs px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono flex items-center gap-1.5 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Command Pipeline Engine Active
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: User Input & Command Pipeline Log (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-5">
+            
+            <!-- Input Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                
+                <div class="flex justify-between items-center mb-2">
+                    <label for="exprInput" class="block text-sm font-semibold text-slate-700">
+                        समुच्चय व्यंजक (Set Expression) दर्ज करें:
+                    </label>
+                    <span id="validBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold hidden">
+                        <i class="fa-solid fa-check mr-1"></i>मान्य (Valid)
+                    </span>
+                </div>
+                
+                <div class="relative mb-3">
+                    <input type="text" id="exprInput" 
+                        class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-code text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm"
+                        placeholder="उदा: A ⊄ B या B' ⊂ A'" value="A ⊄ B" />
+                    <button id="clearExprBtn" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Syntax Error Alert -->
+                <div id="errorAlert" class="hidden mb-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i>
+                    <span id="errorMessage">त्रुटि</span>
+                </div>
+
+                <!-- Virtual Keypad -->
+                <div class="mb-4">
+                    <span class="text-xs font-semibold uppercase text-slate-500 tracking-wider block mb-2">Symbolic Quick Keys</span>
+                    
+                    <div class="grid grid-cols-6 gap-1.5 font-code mb-2">
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="U" title="Universal Set">U</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="A">A</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="B">B</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="C">C</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="∅" title="Empty Set">∅</button>
+                        <button class="key-btn p-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-center font-bold text-base transition border border-indigo-200" data-key="'" title="Complement">'</button>
+                    </div>
+
+                    <div class="grid grid-cols-6 gap-1.5 font-code mb-2">
+                        <button class="key-btn p-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-center font-bold text-base transition border border-indigo-200" data-key=" ∪ " title="Union">∪</button>
+                        <button class="key-btn p-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-center font-bold text-base transition border border-indigo-200" data-key=" ∩ " title="Intersection">∩</button>
+                        <button class="key-btn p-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-center font-bold text-base transition border border-indigo-200" data-key=" - " title="Difference">-</button>
+                        <button class="key-btn p-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-center font-bold text-base transition border border-indigo-200" data-key=" Δ " title="Symmetric Difference">Δ</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="(">(</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key=")" title="Close Parenthesis">)</button>
+                    </div>
+
+                    <!-- Subset & Supersets + Not Variants -->
+                    <div class="grid grid-cols-8 gap-1.5 font-code mb-2">
+                        <button class="key-btn p-2 bg-violet-50 text-violet-700 hover:bg-violet-100 rounded-lg text-center font-bold text-sm transition border border-violet-200" data-key=" ⊂ " title="Proper Subset">⊂</button>
+                        <button class="key-btn p-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-center font-bold text-sm transition border border-rose-200" data-key=" ⊄ " title="Not Proper Subset">⊄</button>
+                        <button class="key-btn p-2 bg-violet-50 text-violet-700 hover:bg-violet-100 rounded-lg text-center font-bold text-sm transition border border-violet-200" data-key=" ⊆ " title="Subset">⊆</button>
+                        <button class="key-btn p-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-center font-bold text-sm transition border border-rose-200" data-key=" ⊈ " title="Not Subset">⊈</button>
+                        <button class="key-btn p-2 bg-violet-50 text-violet-700 hover:bg-violet-100 rounded-lg text-center font-bold text-sm transition border border-violet-200" data-key=" ⊃ " title="Proper Superset">⊃</button>
+                        <button class="key-btn p-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-center font-bold text-sm transition border border-rose-200" data-key=" ⊅ " title="Not Proper Superset">⊅</button>
+                        <button class="key-btn p-2 bg-violet-50 text-violet-700 hover:bg-violet-100 rounded-lg text-center font-bold text-sm transition border border-violet-200" data-key=" ⊇ " title="Superset">⊇</button>
+                        <button class="key-btn p-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-center font-bold text-sm transition border border-rose-200" data-key=" ⊉ " title="Not Superset">⊉</button>
+                    </div>
+
+                    <div class="grid grid-cols-6 gap-1.5 font-code">
+                        <button class="key-btn p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-center font-bold text-base transition border border-emerald-200" data-key=" ∈ " title="Element of">∈</button>
+                        <button class="key-btn p-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-center font-bold text-base transition border border-rose-200" data-key=" ∉ " title="Not Element of">∉</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="=">=</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key="(">(</button>
+                        <button class="key-btn p-2 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded-lg text-center font-bold text-base transition border border-slate-200" data-key=")" title=")">)</button>
+                        <button id="backspaceBtn" class="p-2 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-lg text-center font-bold text-base transition flex items-center justify-center gap-1.5 shadow-sm" title="Backspace">
+                            <i class="fa-solid fa-delete-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Presets -->
+                <div class="mb-4">
+                    <span class="text-xs font-semibold uppercase text-slate-500 tracking-wider block mb-2">Preset Examples</span>
+                    <div class="flex flex-wrap gap-1.5 font-code text-xs">
+                        <button class="preset-btn px-2.5 py-1 rounded bg-slate-50 border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-700 transition shadow-sm">A ⊄ B</button>
+                        <button class="preset-btn px-2.5 py-1 rounded bg-slate-50 border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-700 transition shadow-sm">B' ⊂ A'</button>
+                        <button class="preset-btn px-2.5 py-1 rounded bg-slate-50 border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-700 transition shadow-sm">A ⊂ B</button>
+                        <button class="preset-btn px-2.5 py-1 rounded bg-slate-50 border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-700 transition shadow-sm">A ∩ B = ∅</button>
+                        <button class="preset-btn px-2.5 py-1 rounded bg-slate-50 border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-700 transition shadow-sm">(A ∩ B)'</button>
+                    </div>
+                </div>
+
+                <!-- Generate Command Execution Trigger -->
+                <button id="executePipelineBtn" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
+                    <i class="fa-solid fa-play"></i>
+                    <span>कमांड पाइपलाइन रन करें (Run Pipeline)</span>
+                </button>
+            </div>
+
+            <!-- Pass 1: Generated Command Stream Terminal -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col flex-grow">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-200 pb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 flex items-center gap-2">
+                        <i class="fa-solid fa-terminal"></i>
+                        <span>Pass 1: Generated Render Commands</span>
+                    </span>
+                    <span id="commandCountBadge" class="text-[11px] font-code px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">0 Commands</span>
+                </div>
+
+                <div id="commandTerminal" class="font-code text-xs space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200 max-h-[280px] overflow-y-auto">
+                    <!-- Dynamic Log Streams generated in Pass 1 -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Visualizer Engine & Region Breakdown (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-5">
+            
+            <!-- Venn Canvas Card (Pass 2 Executor Target) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+                
+                <div class="w-full flex items-center justify-between mb-3">
+                    <span class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-display text-indigo-600"></i>
+                        <span>Pass 2: Visual Command Execution Render</span>
+                    </span>
+                    <span id="setCountBadge" class="px-2.5 py-1 text-xs rounded-full bg-indigo-50 text-indigo-700 font-code border border-indigo-200">
+                        2-Sets Diagram
+                    </span>
+                </div>
+
+                <!-- SVG Engine Canvas -->
+                <div class="w-full aspect-[4/3] max-w-[500px] relative flex items-center justify-center border border-slate-200 rounded-xl bg-slate-50/70 overflow-hidden shadow-inner">
+                    <svg id="vennSvg" viewBox="0 0 500 400" class="w-full h-full drop-shadow-sm">
+                        <!-- Dynamically populated by Pass 2 Command Executor -->
+                    </svg>
+                </div>
+
+                <div id="regionHoverInfo" class="mt-3 w-full p-2.5 rounded-xl bg-slate-50 text-center text-xs font-medium text-slate-600 border border-slate-200">
+                    क्षेत्र पर माउस ले जाएं या टैप करें। (Hover to inspect region state)
+                </div>
+            </div>
+
+            <!-- Mathematical Explanation & Region Table -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+                <div class="border-b border-slate-200 pb-2 flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-indigo-600"></i>
+                        <span>क्षेत्रीय बूलियन स्थिति (Boolean Shading Map Matrix)</span>
+                    </h2>
+                    <span id="shadedSummaryBadge" class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-code border border-indigo-200">
+                        0 Shaded
+                    </span>
+                </div>
+
+                <div id="verbalExplanation" class="text-xs leading-relaxed text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <!-- Explanation text -->
+                </div>
+
+                <!-- Boolean Region Matrix -->
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table class="w-full text-left text-xs font-code">
+                        <thead class="bg-slate-100 text-slate-700 uppercase">
+                            <tr id="tableHeaderRow">
+                                <th class="p-2.5 border-b border-slate-200">Bitmask</th>
+                                <th class="p-2.5 border-b border-slate-200">Region Name</th>
+                                <th class="p-2.5 border-b border-slate-200 text-center">A</th>
+                                <th class="p-2.5 border-b border-slate-200 text-center">B</th>
+                                <th class="p-2.5 border-b border-slate-200 text-center">C</th>
+                                <th class="p-2.5 border-b border-slate-200 text-right">Shaded?</th>
+                            </tr>
+                        </thead>
+                        <tbody id="truthTableBody" class="divide-y divide-slate-200">
+                            <!-- Matrix rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Professional History Panel Section -->
+            <div id="historyPanelCard" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4 transition-all duration-300">
+                <div class="border-b border-slate-200 pb-2.5 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-indigo-600"></i>
+                        <h2 class="text-sm font-bold text-slate-700">जनरेशन इतिहास और लॉग (Professional Execution History)</h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="panelFullscreenBtn" title="पूरा इतिहास पैनल फुल-स्क्रीन करें" class="text-xs text-indigo-600 hover:text-indigo-800 px-2.5 py-1 bg-indigo-50 border border-indigo-200 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-expand"></i> <span>फुल-स्क्रीन पैनल</span>
+                        </button>
+                        <button id="clearHistoryBtn" class="text-xs text-rose-600 hover:text-rose-800 px-2.5 py-1 bg-rose-50 border border-rose-200 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-trash-can"></i> इतिहास साफ़ करें
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="historyContainer" class="flex flex-col gap-3 flex-grow overflow-y-auto pr-1">
+                    <p class="text-xs text-slate-400 italic text-center py-6">अभी कोई इतिहास उपलब्ध नहीं है। कृपया कोई व्यंजक रन करें।</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Full Screen History Modal Preview -->
+    <div id="fullscreenModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-6">
+        <div class="bg-white border border-slate-200 w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[95vh]">
+            <!-- Modal Header -->
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center border border-indigo-200">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div>
+                        <h3 id="modalTitleExpr" class="text-base font-bold text-slate-800 font-code">वेन आरेख फुल-स्क्रीन कच्चा-चिट्ठा</h3>
+                        <p class="text-xs text-slate-500" id="modalTimestamp">कुल निष्पादन: --</p>
+                    </div>
+                </div>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-slate-700 p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <!-- Modal Body Content -->
+            <div class="p-6 overflow-y-auto flex flex-col gap-6 flex-grow bg-slate-50/50">
+                <!-- Top Section: Diagram & Quick Summary & Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                    <!-- Left Diagram Preview (5 Cols) -->
+                    <div class="md:col-span-5 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center aspect-[4/3] relative">
+                        <img id="modalSvgImage" src="" class="w-full h-full object-contain" alt="Full Screen Venn">
+                    </div>
+                    
+                    <!-- Right Metrics & Load Action (7 Cols) -->
+                    <div class="md:col-span-7 flex flex-col gap-4">
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold">कुल रन (Runs)</span>
+                                <span id="modalMetricRuns" class="text-lg font-bold font-code text-indigo-600">0</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold">शेड क्षेत्र (Shaded)</span>
+                                <span id="modalMetricShaded" class="text-lg font-bold font-code text-emerald-600">0 / 0</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold">डायग्राम प्रकार</span>
+                                <span id="modalMetricType" class="text-xs font-bold font-code text-violet-600 mt-1">2-Sets</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2">
+                            <span class="font-bold text-indigo-600 uppercase tracking-wider text-xs flex items-center gap-2">
+                                <i class="fa-solid fa-circle-info"></i> सूत्र विवरण एवं शेड क्षेत्र:
+                            </span>
+                            <p id="modalExplanation" class="text-slate-600 text-xs leading-relaxed">विवरण यहाँ दिखाई देगा...</p>
+                        </div>
+
+                        <button id="modalLoadBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs">
+                            <i class="fa-solid fa-arrow-rotate-right"></i> मुख्य संपादक में यह व्यंजक लोड करें
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Middle Section: Detailed Truth Table Matrix Inside Modal -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-table"></i>
+                            <span>इस व्यंजक की बूलियन ट्रूथ टेबल मैट्रिक्स (Region Shading Matrix)</span>
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-slate-200">
+                        <table class="w-full text-left text-xs font-code">
+                            <thead class="bg-slate-100 text-slate-700 uppercase">
+                                <tr id="modalTableHeaderRow">
+                                    <th class="p-2 border-b border-slate-200">Bitmask</th>
+                                    <th class="p-2 border-b border-slate-200">Region</th>
+                                    <th class="p-2 border-b border-slate-200 text-center">A</th>
+                                    <th class="p-2 border-b border-slate-200 text-center">B</th>
+                                    <th class="p-2 border-b border-slate-200 text-right">Shaded?</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalTruthTableBody" class="divide-y divide-slate-200">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bottom Section: Execution Timeline Table -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <span>इस सूत्र के निष्पादन का समय-इतिहास (Execution Timeline History)</span>
+                        </span>
+                        <span id="modalRunCountBadge" class="text-xs font-code px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">0 Runs</span>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-slate-200">
+                        <table class="w-full text-left text-xs font-code">
+                            <thead class="bg-slate-100 text-slate-700 uppercase">
+                                <tr>
+                                    <th class="p-2.5 border-b border-slate-200">क्र.सं. (Index)</th>
+                                    <th class="p-2.5 border-b border-slate-200">सेट का प्रकार (Set Type)</th>
+                                    <th class="p-2.5 border-b border-slate-200">लागू करने का समय (Timestamp)</th>
+                                    <th class="p-2.5 border-b border-slate-200 text-right">शेड क्षेत्र स्थिति</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalTimelineTableBody" class="divide-y divide-slate-200">
+                                <!-- Dynamic timeline rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto py-3 border-t border-slate-200 bg-white text-center text-xs text-slate-500 shadow-sm">
+        Two-Pass Venn Diagram Pipeline Engine &copy; 2026 | 100% Mathematical Precision
+    </footer>
+
+    <!-- Main Logic Script -->
+    <script>
+        // --- REGION DEFINITIONS (Bitmask mappings for 2 and 3 sets) ---
+        const REGIONS_2 = [
+            { bit: 0b00, id: 'r_00', name: 'Universal Outside U', maskId: 'maskOutside2', a: false, b: false, c: false, hindi: 'A और B दोनों के बाहर (Universal U)' },
+            { bit: 0b10, id: 'r_10', name: 'A Only (A - B)',       maskId: 'maskAonly',    a: true,  b: false, c: false, hindi: 'केवल A में' },
+            { bit: 0b01, id: 'r_01', name: 'B Only (B - A)',       maskId: 'maskBonly',    a: false, b: true,  c: false, hindi: 'केवल B में' },
+            { bit: 0b11, id: 'r_11', name: 'Intersection A ∩ B',   maskId: 'clipA',        a: true,  b: true,  c: false, hindi: 'A और B का साझा (A ∩ B)' }
+        ];
+
+        const REGIONS_3 = [
+            { bit: 0b000, id: 'r_000', name: 'Universal Outside U', maskId: 'maskOutside3', a: false, b: false, c: false, hindi: 'तीनों के बाहर (Universal U)' },
+            { bit: 0b100, id: 'r_100', name: 'A Only',               maskId: 'maskAonly3',   a: true,  b: false, c: false, hindi: 'केवल A में' },
+            { bit: 0b010, id: 'r_010', name: 'B Only',               maskId: 'maskBonly3',   a: false, b: true,  c: false, hindi: 'केवल B में' },
+            { bit: 0b001, id: 'r_001', name: 'C Only',               maskId: 'maskConly3',   a: false, b: false, c: true,  hindi: 'केवल C में' },
+            { bit: 0b110, id: 'r_110', name: '(A ∩ B) - C',          maskId: 'maskNotC',     a: true,  b: true,  c: false, hindi: 'A और B का साझा (C रहित)' },
+            { bit: 0b101, id: 'r_101', name: '(A ∩ C) - B',          maskId: 'maskNotB',     a: true,  b: false, c: true,  hindi: 'A और C का साझा (B रहित)' },
+            { bit: 0b011, id: 'r_011', name: '(B ∩ C) - A',          maskId: 'maskNotA',     a: false, b: true,  c: true,  hindi: 'B और C का साझा (A रहित)' },
+            { bit: 0b111, id: 'r_111', name: 'A ∩ B ∩ C',            maskId: 'clipC',        a: true,  b: true,  c: true,  hindi: 'तीनों में साझा (A ∩ B ∩ C)' }
+        ];
+
+        // --- PASS 1 ENGINE: LEXER & AST PARSER ---
+        function lex(input) {
+            let s = input
+                .replace(/⊈/g, ' NOTSUBSETEQ ')
+                .replace(/⊄/g, ' NOTPROPERSUBSET ')
+                .replace(/⊉/g, ' NOTSUPERSETEQ ')
+                .replace(/⊅/g, ' NOTPROPERSUPERSET ')
+                .replace(/⊆/g, ' SUBSETEQ ')
+                .replace(/⊂/g, ' PROPERSUBSET ')
+                .replace(/⊇/g, ' SUPERSETEQ ')
+                .replace(/⊃/g, ' PROPERSUPERSET ')
+                .replace(/∈/g, ' IN ')
+                .replace(/∉/g, ' NOTIN ')
+                .replace(/∪/g, ' UNION ')
+                .replace(/∩/g, ' INTERSECT ')
+                .replace(/Δ/g, ' SYMDIFF ')
+                .replace(/×/g, '*')
+                .replace(/∅/g, ' EMPTYSET ')
+                .replace(/~/g, "'")
+                .replace(/\\notsubset/g, ' NOTPROPERSUBSET ')
+                .replace(/\\nototsubseteq/g, ' NOTSUBSETEQ ')
+                .replace(/\\subset/g, ' PROPERSUBSET ')
+                .replace(/\\subseteq/g, ' SUBSETEQ ')
+                .replace(/\\supset/g, ' PROPERSUPERSET ')
+                .replace(/\\supseteq/g, ' SUPERSETEQ ')
+                .replace(/\\cap/g, ' INTERSECT ')
+                .replace(/\\cup/g, ' UNION ')
+                .replace(/\\/g, '-');
+
+            let tokens = [];
+            let i = 0;
+            while (i < s.length) {
+                let c = s[i];
+                if (/\s/.test(c)) { i++; continue; }
+                
+                if (s.startsWith('EMPTYSET', i)) {
+                    tokens.push({ type: 'EMPTYSET' });
+                    i += 8; continue;
+                }
+                if (s.startsWith('NOTPROPERSUBSET', i)) {
+                    tokens.push({ type: 'OP', val: '⊄', prec: 1 });
+                    i += 15; continue;
+                }
+                if (s.startsWith('NOTSUBSETEQ', i)) {
+                    tokens.push({ type: 'OP', val: '⊈', prec: 1 });
+                    i += 11; continue;
+                }
+                if (s.startsWith('NOTPROPERSUPERSET', i)) {
+                    tokens.push({ type: 'OP', val: '⊅', prec: 1 });
+                    i += 17; continue;
+                }
+                if (s.startsWith('NOTSUPERSETEQ', i)) {
+                    tokens.push({ type: 'OP', val: '⊉', prec: 1 });
+                    i += 13; continue;
+                }
+                if (s.startsWith('SUBSETEQ', i)) {
+                    tokens.push({ type: 'OP', val: '⊆', prec: 1 });
+                    i += 8; continue;
+                }
+                if (s.startsWith('PROPERSUBSET', i)) {
+                    tokens.push({ type: 'OP', val: '⊂', prec: 1 });
+                    i += 12; continue;
+                }
+                if (s.startsWith('SUPERSETEQ', i)) {
+                    tokens.push({ type: 'OP', val: '⊇', prec: 1 });
+                    i += 10; continue;
+                }
+                if (s.startsWith('PROPERSUPERSET', i)) {
+                    tokens.push({ type: 'OP', val: '⊃', prec: 1 });
+                    i += 14; continue;
+                }
+                if (s.startsWith('IN', i) && (i + 2 >= s.length || /\s/.test(s[i+2]))) {
+                    tokens.push({ type: 'OP', val: '∈', prec: 1 });
+                    i += 2; continue;
+                }
+                if (s.startsWith('NOTIN', i)) {
+                    tokens.push({ type: 'OP', val: '∉', prec: 1 });
+                    i += 5; continue;
+                }
+                if (s.startsWith('UNION', i)) {
+                    tokens.push({ type: 'OP', val: 'U', prec: 1 });
+                    i += 5; continue;
+                }
+                if (s.startsWith('INTERSECT', i)) {
+                    tokens.push({ type: 'OP', val: 'n', prec: 2 });
+                    i += 9; continue;
+                }
+                if (s.startsWith('SYMDIFF', i)) {
+                    tokens.push({ type: 'OP', val: 'D', prec: 2 });
+                    i += 7; continue;
+                }
+
+                if (['A', 'B', 'C', 'U'].includes(c.toUpperCase())) {
+                    tokens.push({ type: 'VAR', val: c.toUpperCase() });
+                    i++;
+                } else if (c === '=' || c === '≠') {
+                    tokens.push({ type: 'OP', val: c, prec: 1 });
+                    i++;
+                } else if (c === '∪' || c === '|') {
+                    tokens.push({ type: 'OP', val: 'U', prec: 1 });
+                    i++;
+                } else if (c === '&') {
+                    tokens.push({ type: 'OP', val: 'n', prec: 2 });
+                    i++;
+                } else if (c === '-') {
+                    tokens.push({ type: 'OP', val: '-', prec: 2 });
+                    i++;
+                } else if (c === "'") {
+                    tokens.push({ type: 'POSTFIX', val: "'" });
+                    i++;
+                } else if (c === '(' || c === '[') {
+                    tokens.push({ type: 'LPAREN' });
+                    i++;
+                } else if (c === ')' || c === ']') {
+                    tokens.push({ type: 'RPAREN' });
+                    i++;
+                } else {
+                    throw new Error(`अमान्य सिंबल '${c}' (Invalid Token)`);
+                }
+            }
+            return tokens;
+        }
+
+        function parseToAST(tokens) {
+            let out = [];
+            let ops = [];
+
+            for (let t of tokens) {
+                if (t.type === 'VAR' || t.type === 'EMPTYSET') {
+                    out.push(t);
+                } else if (t.type === 'POSTFIX') {
+                    if (out.length === 0) throw new Error("पूरक (') ऑपरेटर से पहले वैल्यू होनी चाहिए।");
+                    let child = out.pop();
+                    out.push({ type: 'UNARY', op: "'", child: child });
+                } else if (t.type === 'OP') {
+                    while (ops.length > 0 && ops[ops.length - 1].type === 'OP' && ops[ops.length - 1].prec >= t.prec) {
+                        let op = ops.pop();
+                        if (out.length < 2) throw new Error("ऑपरेटर त्रुटि।");
+                        let right = out.pop();
+                        let left = out.pop();
+                        out.push({ type: 'BINARY', op: op.val, left: left, right: right });
+                    }
+                    ops.push(t);
+                } else if (t.type === 'LPAREN') {
+                    ops.push(t);
+                } else if (t.type === 'RPAREN') {
+                    let matched = false;
+                    while (ops.length > 0) {
+                        let top = ops.pop();
+                        if (top.type === 'LPAREN') {
+                            matched = true;
+                            break;
+                        } else {
+                            if (out.length < 2) throw new Error("गलत कोष्ठक संरचना।");
+                            let right = out.pop();
+                            let left = out.pop();
+                            out.push({ type: 'BINARY', op: top.val, left: left, right: right });
+                        }
+                    }
+                    if (!matched) throw new Error("कोष्ठक असंतुलित हैं (Unbalanced Parentheses)");
+
+                    if (ops.length > 0 && ops[ops.length - 1].type === 'POSTFIX') {
+                        ops.pop();
+                        let child = out.pop();
+                        out.push({ type: 'UNARY', op: "'", child: child });
+                    }
+                }
+            }
+
+            while (ops.length > 0) {
+                let op = ops.pop();
+                if (op.type === 'LPAREN' || op.type === 'RPAREN') throw new Error("कोष्ठक असंतुलित हैं।");
+                if (out.length < 2) throw new Error("अधूरा सूत्र।");
+                let right = out.pop();
+                let left = out.pop();
+                out.push({ type: 'BINARY', op: op.val, left: left, right: right });
+            }
+
+            if (out.length !== 1) throw new Error("अमान्य व्यंजक।");
+            return out[0];
+        }
+
+        function evalAST(node, ctx) {
+            if (node.type === 'EMPTYSET') return false;
+            if (node.type === 'VAR') {
+                if (node.val === 'U') return true;
+                return !!ctx[node.val];
+            }
+            if (node.type === 'UNARY') return !evalAST(node.child, ctx);
+            if (node.type === 'BINARY') {
+                let l = evalAST(node.left, ctx);
+                let r = evalAST(node.right, ctx);
+                if (node.op === 'U') return l || r;
+                if (node.op === 'n') return l && r;
+                if (node.op === '-') return l && !r;
+                if (node.op === 'D') return (l && !r) || (!l && r);
+                
+                // Relational logic mappings
+                if (node.op === '⊆' || node.op === '⊂') {
+                    return l && !r;
+                }
+                if (node.op === '⊄' || node.op === '⊈') {
+                    return !(l && !r);
+                }
+                if (node.op === '⊇' || node.op === '⊃') {
+                    return r && !l;
+                }
+                if (node.op === '⊅' || node.op === '⊉') {
+                    return !(r && !l);
+                }
+                if (node.op === '=') return l === r;
+                if (node.op === '∈') return l;
+                if (node.op === '∉') return !l;
+            }
+            return false;
+        }
+
+        // --- AUTOMATIC LAYOUT DETECTOR ENGINE (UPDATED FOR NOT SUBSET & DISJOINT) ---
+        function detectLayoutType(exprStr) {
+            const clean = exprStr.replace(/\s+/g, '');
+            
+            // 1. Concentric Layouts (Subset A in B)
+            if (clean.includes("B'⊂A'") || clean.includes("B'⊆A'") || clean.includes("A⊂B") || clean.includes("A⊆B") || clean.includes("B⊃A") || clean.includes("B⊇A")) {
+                return 'subset_A_in_B';
+            }
+            // Concentric Layouts (Subset B in A)
+            if (clean.includes("A'⊂B'") || clean.includes("A'⊆B'") || clean.includes("B⊂A") || clean.includes("B⊆A") || clean.includes("A⊃B") || clean.includes("A⊇B")) {
+                return 'subset_B_in_A';
+            }
+            
+            // 2. Disjoint Layouts (Not Subset, Not Superset, or A ∩ B = ∅)
+            if (clean.includes('⊄') || clean.includes('⊈') || clean.includes('⊅') || clean.includes('⊉')) {
+                return 'disjoint';
+            }
+            if ((clean.includes('A∩B') || clean.includes('B∩A')) && (clean.includes('=∅') || clean.includes('=0'))) {
+                return 'disjoint';
+            }
+
+            return 'standard';
+        }
+
+        // --- PASS 1: PRE-COMPUTATION & COMMAND GENERATION PIPELINE ---
+        function generateRenderCommands(exprStr) {
+            const tokens = lex(exprStr);
+            const ast = parseToAST(tokens);
+            const isThreeSets = /\bC\b/i.test(exprStr);
+            const layoutType = isThreeSets ? 'standard' : detectLayoutType(exprStr);
+            const regionList = isThreeSets ? REGIONS_3 : REGIONS_2;
+
+            const commands = [];
+            commands.push({
+                type: 'INIT_CANVAS',
+                sets: isThreeSets ? 3 : 2,
+                layout: layoutType,
+                color: 'rgba(99, 102, 241, 0.3)',
+                description: `Initialize Canvas [Sets: ${isThreeSets ? 3 : 2}, Layout: ${layoutType}]`
+            });
+
+            const booleanMap = {};
+
+            for (let r of regionList) {
+                let ctx = { A: r.a, B: r.b, C: r.c };
+                let isShaded = evalAST(ast, ctx);
+                
+                if (layoutType === 'disjoint' && r.id === 'r_11') {
+                    isShaded = false;
+                }
+
+                booleanMap[r.id] = isShaded;
+
+                if (isShaded) {
+                    commands.push({
+                        type: 'HIGHLIGHT_REGION',
+                        regionId: r.id,
+                        bitmask: `0b${r.bit.toString(2).padStart(isThreeSets ? 3 : 2, '0')}`,
+                        maskId: r.maskId,
+                        regionName: r.name,
+                        description: `HIGHLIGHT ${r.name} [Bit: ${r.bit}]`
+                    });
+                } else {
+                    commands.push({
+                        type: 'CLEAR_REGION',
+                        regionId: r.id,
+                        bitmask: `0b${r.bit.toString(2).padStart(isThreeSets ? 3 : 2, '0')}`,
+                        maskId: r.maskId,
+                        regionName: r.name,
+                        description: `KEEP_TRANSPARENT ${r.name} [Bit: ${r.bit}]`
+                    });
+                }
+            }
+
+            commands.push({
+                type: 'RENDER_OUTLINES_AND_LABELS',
+                layout: layoutType,
+                description: 'Overlay Venn boundary outlines and text labels'
+            });
+
+            return { isThreeSets, commands, booleanMap, regionList, layoutType };
+        }
+
+        // --- PASS 2 ENGINE: COMMAND EXECUTOR (SVG RENDER PIPELINE) ---
+        function executeRenderPipeline(pipelineData) {
+            const { isThreeSets, commands, booleanMap, regionList, layoutType } = pipelineData;
+            const vennSvg = document.getElementById('vennSvg');
+            vennSvg.innerHTML = '';
+
+            const fillColor = 'rgba(99, 102, 241, 0.35)';
+            const transparentFill = 'rgba(255,255,255,0.001)';
+            const strokeColor = '#64748b';
+
+            commands.forEach(cmd => {
+                if (cmd.type === 'INIT_CANVAS') {
+                    let defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                    if (!isThreeSets) {
+                        if (layoutType === 'subset_A_in_B') {
+                            defs.innerHTML = `
+                                <mask id="maskOutside2">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="250" cy="200" r="125" fill="black"/>
+                                </mask>
+                                <mask id="maskBonly">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="250" cy="200" r="65" fill="black"/>
+                                </mask>
+                            `;
+                        } else if (layoutType === 'subset_B_in_A') {
+                            defs.innerHTML = `
+                                <mask id="maskOutside2">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="250" cy="200" r="125" fill="black"/>
+                                </mask>
+                                <mask id="maskAonly">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="250" cy="200" r="65" fill="black"/>
+                                </mask>
+                            `;
+                        } else if (layoutType === 'disjoint') {
+                            defs.innerHTML = `
+                                <mask id="maskOutside2">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="160" cy="200" r="90" fill="black"/>
+                                    <circle cx="340" cy="200" r="90" fill="black"/>
+                                </mask>
+                            `;
+                        } else {
+                            defs.innerHTML = `
+                                <clipPath id="clipA"><circle cx="180" cy="200" r="110" /></clipPath>
+                                <clipPath id="clipB"><circle cx="320" cy="200" r="110" /></clipPath>
+                                <mask id="maskOutside2">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="180" cy="200" r="110" fill="black"/>
+                                    <circle cx="320" cy="200" r="110" fill="black"/>
+                                </mask>
+                                <mask id="maskAonly">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="320" cy="200" r="110" fill="black"/>
+                                </mask>
+                                <mask id="maskBonly">
+                                    <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                    <circle cx="180" cy="200" r="110" fill="black"/>
+                                </mask>
+                            `;
+                        }
+                    } else {
+                        defs.innerHTML = `
+                            <clipPath id="clipA"><circle cx="200" cy="170" r="100" /></clipPath>
+                            <clipPath id="clipB"><circle cx="300" cy="170" r="100" /></clipPath>
+                            <clipPath id="clipC"><circle cx="250" cy="255" r="100" /></clipPath>
+                            <mask id="maskOutside3">
+                                <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                <circle cx="200" cy="170" r="100" fill="black"/>
+                                <circle cx="300" cy="170" r="100" fill="black"/>
+                                <circle cx="250" cy="255" r="100" fill="black"/>
+                            </mask>
+                            <mask id="maskAonly3">
+                                <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                <circle cx="300" cy="170" r="100" fill="black"/>
+                                <circle cx="250" cy="255" r="100" fill="black"/>
+                            </mask>
+                            <mask id="maskBonly3">
+                                <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                <circle cx="200" cy="170" r="100" fill="black"/>
+                                <circle cx="250" cy="255" r="100" fill="black"/>
+                            </mask>
+                            <mask id="maskConly3">
+                                <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                <circle cx="200" cy="170" r="100" fill="black"/>
+                                <circle cx="300" cy="170" r="100" fill="black"/>
+                            </mask>
+                            <mask id="maskNotC">
+                                <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                <circle cx="250" cy="255" r="100" fill="black"/>
+                            </mask>
+                            <mask id="maskNotB">
+                                <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                <circle cx="300" cy="170" r="100" fill="black"/>
+                            </mask>
+                            <mask id="maskNotA">
+                                <rect x="0" y="0" width="500" height="400" fill="white"/>
+                                <circle cx="200" cy="170" r="100" fill="black"/>
+                            </mask>
+                        `;
+                    }
+                    vennSvg.appendChild(defs);
+                } 
+                else if (cmd.type === 'HIGHLIGHT_REGION' || cmd.type === 'CLEAR_REGION') {
+                    const isShaded = (cmd.type === 'HIGHLIGHT_REGION');
+                    const colorToApply = isShaded ? fillColor : transparentFill;
+
+                    if (!isThreeSets) {
+                        if (layoutType === 'subset_A_in_B') {
+                            if (cmd.regionId === 'r_00') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                                p.setAttribute('x', '10'); p.setAttribute('y', '10'); p.setAttribute('width', '480'); p.setAttribute('height', '380'); p.setAttribute('rx', '16');
+                                p.setAttribute('mask', 'url(#maskOutside2)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_00');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_01') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '250'); p.setAttribute('cy', '200'); p.setAttribute('r', '125');
+                                p.setAttribute('mask', 'url(#maskBonly)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_01');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_11') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '250'); p.setAttribute('cy', '200'); p.setAttribute('r', '65');
+                                p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_11');
+                                vennSvg.appendChild(p);
+                            }
+                        } else if (layoutType === 'subset_B_in_A') {
+                            if (cmd.regionId === 'r_00') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                                p.setAttribute('x', '10'); p.setAttribute('y', '10'); p.setAttribute('width', '480'); p.setAttribute('height', '380'); p.setAttribute('rx', '16');
+                                p.setAttribute('mask', 'url(#maskOutside2)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_00');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_10') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '250'); p.setAttribute('cy', '200'); p.setAttribute('r', '125');
+                                p.setAttribute('mask', 'url(#maskAonly)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_10');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_11') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '250'); p.setAttribute('cy', '200'); p.setAttribute('r', '65');
+                                p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_11');
+                                vennSvg.appendChild(p);
+                            }
+                        } else if (layoutType === 'disjoint') {
+                            if (cmd.regionId === 'r_00') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                                p.setAttribute('x', '10'); p.setAttribute('y', '10'); p.setAttribute('width', '480'); p.setAttribute('height', '380'); p.setAttribute('rx', '16');
+                                p.setAttribute('mask', 'url(#maskOutside2)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_00');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_10') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '160'); p.setAttribute('cy', '200'); p.setAttribute('r', '90');
+                                p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_10');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_01') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '340'); p.setAttribute('cy', '200'); p.setAttribute('r', '90');
+                                p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_01');
+                                vennSvg.appendChild(p);
+                            }
+                        } else {
+                            if (cmd.regionId === 'r_00') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                                p.setAttribute('x', '10'); p.setAttribute('y', '10'); p.setAttribute('width', '480'); p.setAttribute('height', '380'); p.setAttribute('rx', '16');
+                                p.setAttribute('mask', 'url(#maskOutside2)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_00');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_10') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '180'); p.setAttribute('cy', '200'); p.setAttribute('r', '110');
+                                p.setAttribute('mask', 'url(#maskAonly)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_10');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_01') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '320'); p.setAttribute('cy', '200'); p.setAttribute('r', '110');
+                                p.setAttribute('mask', 'url(#maskBonly)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_01');
+                                vennSvg.appendChild(p);
+                            } else if (cmd.regionId === 'r_11') {
+                                let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                p.setAttribute('cx', '320'); p.setAttribute('cy', '200'); p.setAttribute('r', '110');
+                                p.setAttribute('clip-path', 'url(#clipA)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_11');
+                                vennSvg.appendChild(p);
+                            }
+                        }
+                    } else {
+                        if (cmd.regionId === 'r_000') {
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                            p.setAttribute('x', '10'); p.setAttribute('y', '10'); p.setAttribute('width', '480'); p.setAttribute('height', '380'); p.setAttribute('rx', '16');
+                            p.setAttribute('mask', 'url(#maskOutside3)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_000');
+                            vennSvg.appendChild(p);
+                        } else if (cmd.regionId === 'r_100') {
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            p.setAttribute('cx', '200'); p.setAttribute('cy', '170'); p.setAttribute('r', '100');
+                            p.setAttribute('mask', 'url(#maskAonly3)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_100');
+                            vennSvg.appendChild(p);
+                        } else if (cmd.regionId === 'r_010') {
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            p.setAttribute('cx', '300'); p.setAttribute('cy', '170'); p.setAttribute('r', '100');
+                            p.setAttribute('mask', 'url(#maskBonly3)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_010');
+                            vennSvg.appendChild(p);
+                        } else if (cmd.regionId === 'r_001') {
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            p.setAttribute('cx', '250'); p.setAttribute('cy', '255'); p.setAttribute('r', '100');
+                            p.setAttribute('mask', 'url(#maskConly3)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_001');
+                            vennSvg.appendChild(p);
+                        } else if (cmd.regionId === 'r_110') {
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            p.setAttribute('cx', '300'); p.setAttribute('cy', '170'); p.setAttribute('r', '100');
+                            p.setAttribute('clip-path', 'url(#clipA)'); p.setAttribute('mask', 'url(#maskNotC)');
+                            p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_110');
+                            vennSvg.appendChild(p);
+                        } else if (cmd.regionId === 'r_101') {
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            p.setAttribute('cx', '250'); p.setAttribute('cy', '255'); p.setAttribute('r', '100');
+                            p.setAttribute('clip-path', 'url(#clipA)'); p.setAttribute('mask', 'url(#maskNotB)');
+                            p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_101');
+                            vennSvg.appendChild(p);
+                        } else if (cmd.regionId === 'r_011') {
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            p.setAttribute('cx', '250'); p.setAttribute('cy', '255'); p.setAttribute('r', '100');
+                            p.setAttribute('clip-path', 'url(#clipB)'); p.setAttribute('mask', 'url(#maskNotA)');
+                            p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_011');
+                            vennSvg.appendChild(p);
+                        } else if (cmd.regionId === 'r_111') {
+                            let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                            g.setAttribute('clip-path', 'url(#clipC)');
+                            let p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            p.setAttribute('cx', '300'); p.setAttribute('cy', '170'); p.setAttribute('r', '100');
+                            p.setAttribute('clip-path', 'url(#clipA)'); p.setAttribute('fill', colorToApply); p.setAttribute('class', 'venn-region'); p.setAttribute('data-id', 'r_111');
+                            g.appendChild(p);
+                            vennSvg.appendChild(g);
+                        }
+                    }
+                } 
+                else if (cmd.type === 'RENDER_OUTLINES_AND_LABELS') {
+                    let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('x', '10'); rect.setAttribute('y', '10'); rect.setAttribute('width', '480'); rect.setAttribute('height', '380'); rect.setAttribute('rx', '16');
+                    rect.setAttribute('fill', 'none'); rect.setAttribute('stroke', strokeColor); rect.setAttribute('stroke-width', '2');
+                    rect.setAttribute('style', 'pointer-events:none;');
+                    vennSvg.appendChild(rect);
+
+                    if (!isThreeSets) {
+                        if (layoutType === 'subset_A_in_B') {
+                            vennSvg.appendChild(createSVGCircle(250, 200, 125, strokeColor));
+                            vennSvg.appendChild(createSVGCircle(250, 200, 65, strokeColor));
+                            vennSvg.appendChild(createSVGText(35, 35, 'U', 'font-bold fill-slate-500 text-sm'));
+                            vennSvg.appendChild(createSVGText(250, 200, 'A', 'font-bold fill-indigo-600 text-xl pointer-events-none'));
+                            vennSvg.appendChild(createSVGText(250, 100, 'B', 'font-bold fill-violet-600 text-xl pointer-events-none'));
+                        } else if (layoutType === 'subset_B_in_A') {
+                            vennSvg.appendChild(createSVGCircle(250, 200, 125, strokeColor));
+                            vennSvg.appendChild(createSVGCircle(250, 200, 65, strokeColor));
+                            vennSvg.appendChild(createSVGText(35, 35, 'U', 'font-bold fill-slate-500 text-sm'));
+                            vennSvg.appendChild(createSVGText(250, 200, 'B', 'font-bold fill-violet-600 text-xl pointer-events-none'));
+                            vennSvg.appendChild(createSVGText(250, 100, 'A', 'font-bold fill-indigo-600 text-xl pointer-events-none'));
+                        } else if (layoutType === 'disjoint') {
+                            vennSvg.appendChild(createSVGCircle(160, 200, 90, strokeColor));
+                            vennSvg.appendChild(createSVGCircle(340, 200, 90, strokeColor));
+                            vennSvg.appendChild(createSVGText(35, 35, 'U', 'font-bold fill-slate-500 text-sm'));
+                            vennSvg.appendChild(createSVGText(160, 200, 'A', 'font-bold fill-indigo-600 text-xl pointer-events-none'));
+                            vennSvg.appendChild(createSVGText(340, 200, 'B', 'font-bold fill-violet-600 text-xl pointer-events-none'));
+                        } else {
+                            vennSvg.appendChild(createSVGCircle(180, 200, 110, strokeColor));
+                            vennSvg.appendChild(createSVGCircle(320, 200, 110, strokeColor));
+                            vennSvg.appendChild(createSVGText(35, 35, 'U', 'font-bold fill-slate-500 text-sm'));
+                            vennSvg.appendChild(createSVGText(120, 200, 'A', 'font-bold fill-indigo-600 text-xl pointer-events-none'));
+                            vennSvg.appendChild(createSVGText(380, 200, 'B', 'font-bold fill-violet-600 text-xl pointer-events-none'));
+                        }
+                    } else {
+                        vennSvg.appendChild(createSVGCircle(200, 170, 100, strokeColor));
+                        vennSvg.appendChild(createSVGCircle(300, 170, 100, strokeColor));
+                        vennSvg.appendChild(createSVGCircle(250, 255, 100, strokeColor));
+                        vennSvg.appendChild(createSVGText(35, 35, 'U', 'font-bold fill-slate-500 text-sm'));
+                        vennSvg.appendChild(createSVGText(145, 135, 'A', 'font-bold fill-indigo-600 text-lg pointer-events-none'));
+                        vennSvg.appendChild(createSVGText(355, 135, 'B', 'font-bold fill-violet-600 text-lg pointer-events-none'));
+                        vennSvg.appendChild(createSVGText(250, 335, 'C', 'font-bold fill-emerald-600 text-lg pointer-events-none'));
+                    }
+                }
+            });
+
+            document.querySelectorAll('.venn-region').forEach(el => {
+                const regId = el.getAttribute('data-id');
+                const regObj = regionList.find(r => r.id === regId);
+                if (regObj) {
+                    el.addEventListener('mouseenter', () => {
+                        document.getElementById('regionHoverInfo').innerHTML = 
+                            `चयनित क्षेत्र: <strong class="text-indigo-600 font-bold">${regObj.hindi}</strong> (${regObj.name})`;
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        document.getElementById('regionHoverInfo').innerHTML = 
+                            `क्षेत्र पर माउस ले जाएं या टैप करें। (Hover to inspect region state)`;
+                    });
+                }
+            });
+        }
+
+        function createSVGCircle(cx, cy, r, stroke = '#64748b') {
+            let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
+            circle.setAttribute('stroke', stroke); circle.setAttribute('stroke-width', '2'); circle.setAttribute('fill', 'none');
+            circle.setAttribute('style', 'pointer-events:none;');
+            return circle;
+        }
+
+        function createSVGText(x, y, text, className = '') {
+            let txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            txt.setAttribute('x', x); txt.setAttribute('y', y);
+            txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'middle');
+            txt.setAttribute('class', className);
+            txt.textContent = text;
+            return txt;
+        }
+
+        // --- DOM UI CONTROLLERS ---
+        const exprInput = document.getElementById('exprInput');
+        const clearExprBtn = document.getElementById('clearExprBtn');
+        const validBadge = document.getElementById('validBadge');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const executePipelineBtn = document.getElementById('executePipelineBtn');
+        const commandTerminal = document.getElementById('commandTerminal');
+        const commandCountBadge = document.getElementById('commandCountBadge');
+
+        const setCountBadge = document.getElementById('setCountBadge');
+        const shadedSummaryBadge = document.getElementById('shadedSummaryBadge');
+        const verbalExplanation = document.getElementById('verbalExplanation');
+        const truthTableBody = document.getElementById('truthTableBody');
+        const tableHeaderRow = document.getElementById('tableHeaderRow');
+        
+        const historyContainer = document.getElementById('historyContainer');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const historyPanelCard = document.getElementById('historyPanelCard');
+        const panelFullscreenBtn = document.getElementById('panelFullscreenBtn');
+        
+        let isPanelFullscreen = false;
+
+        // Modal Elements
+        const fullscreenModal = document.getElementById('fullscreenModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalTitleExpr = document.getElementById('modalTitleExpr');
+        const modalTimestamp = document.getElementById('modalTimestamp');
+        const modalSvgImage = document.getElementById('modalSvgImage');
+        const modalExplanation = document.getElementById('modalExplanation');
+        const modalLoadBtn = document.getElementById('modalLoadBtn');
+        const modalRunCountBadge = document.getElementById('modalRunCountBadge');
+        const modalTimelineTableBody = document.getElementById('modalTimelineTableBody');
+        
+        const modalMetricRuns = document.getElementById('modalMetricRuns');
+        const modalMetricShaded = document.getElementById('modalMetricShaded');
+        const modalMetricType = document.getElementById('modalMetricType');
+        const modalTableHeaderRow = document.getElementById('modalTableHeaderRow');
+        const modalTruthTableBody = document.getElementById('modalTruthTableBody');
+        let currentModalItem = null;
+
+        // Load History from localStorage on Startup
+        let searchHistory = JSON.parse(localStorage.getItem('venn_app_history')) || [];
+
+        clearExprBtn.addEventListener('click', () => {
+            exprInput.value = '';
+            exprInput.focus();
+            validateInput();
+        });
+        
+        document.getElementById('backspaceBtn').addEventListener('click', () => {
+            let val = exprInput.value;
+            if (val.length > 0) {
+                exprInput.value = val.slice(0, -1);
+                exprInput.focus();
+                validateInput();
+            }
+        });
+
+        document.querySelectorAll('.key-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                exprInput.value += btn.getAttribute('data-key');
+                exprInput.focus();
+                validateInput();
+            });
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                exprInput.value = btn.textContent.trim();
+                runTwoPassArchitecture();
+            });
+        });
+
+        clearHistoryBtn.addEventListener('click', () => {
+            searchHistory = [];
+            localStorage.removeItem('venn_app_history');
+            renderHistoryUI();
+        });
+
+        panelFullscreenBtn.addEventListener('click', () => {
+            isPanelFullscreen = !isPanelFullscreen;
+            if (isPanelFullscreen) {
+                historyPanelCard.classList.remove('relative');
+                historyPanelCard.classList.add('fixed', 'inset-0', 'z-50', 'm-4', 'max-h-[calc(100vh-2rem)]', 'overflow-y-auto', 'shadow-2xl', 'bg-white');
+                panelFullscreenBtn.innerHTML = `<i class="fa-solid fa-compress"></i> <span>सामान्य आकार</span>`;
+            } else {
+                historyPanelCard.classList.remove('fixed', 'inset-0', 'z-50', 'm-4', 'max-h-[calc(100vh-2rem)]', 'overflow-y-auto', 'shadow-2xl', 'bg-white');
+                historyPanelCard.classList.add('relative');
+                panelFullscreenBtn.innerHTML = `<i class="fa-solid fa-expand"></i> <span>फुल-स्क्रीन पैनल</span>`;
+            }
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            fullscreenModal.classList.add('hidden');
+        });
+
+        modalLoadBtn.addEventListener('click', () => {
+            if (currentModalItem) {
+                exprInput.value = currentModalItem.expr;
+                fullscreenModal.classList.add('hidden');
+                runTwoPassArchitecture();
+            }
+        });
+
+        exprInput.addEventListener('input', validateInput);
+        executePipelineBtn.addEventListener('click', runTwoPassArchitecture);
+
+        function validateInput() {
+            const raw = exprInput.value.trim();
+            if (!raw) {
+                validBadge.classList.add('hidden');
+                errorAlert.classList.add('hidden');
+                return false;
+            }
+            try {
+                const tokens = lex(raw);
+                parseToAST(tokens);
+                validBadge.classList.remove('hidden');
+                errorAlert.classList.add('hidden');
+                return true;
+            } catch (err) {
+                validBadge.classList.add('hidden');
+                errorMessage.textContent = err.message;
+                errorAlert.classList.remove('hidden');
+                return false;
+            }
+        }
+
+        function runTwoPassArchitecture() {
+            if (!validateInput()) return;
+
+            const exprStr = exprInput.value.trim();
+
+            const pipelineData = generateRenderCommands(exprStr);
+            renderCommandStreamLog(pipelineData.commands);
+            executeRenderPipeline(pipelineData);
+            renderBooleanMatrix(pipelineData);
+
+            saveToHistory(exprStr, pipelineData);
+        }
+
+        function saveToHistory(exprStr, pipelineData) {
+            const svgElement = document.getElementById('vennSvg');
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('hi-IN');
+            const fullTimestamp = `${dateString}, ${timeString}`;
+
+            const isThree = pipelineData.isThreeSets;
+            const shadedCount = Object.values(pipelineData.booleanMap).filter(Boolean).length;
+            const totalRegions = pipelineData.regionList.length;
+
+            let shadedNames = pipelineData.regionList.filter(r => pipelineData.booleanMap[r.id]).map(r => r.hindi);
+            let explanationText = shadedNames.length === 0 ? "कोई भी क्षेत्र छायांकित नहीं है।" : shadedNames.join(', ');
+
+            let existingItem = searchHistory.find(item => item.expr === exprStr);
+
+            if (existingItem) {
+                existingItem.runs.unshift({
+                    timestamp: fullTimestamp,
+                    setType: isThree ? "3-Sets Diagram" : (pipelineData.layoutType !== 'standard' ? pipelineData.layoutType : "2-Sets Diagram"),
+                    shadedSummary: `${shadedCount} / ${totalRegions} Shaded`,
+                    explanation: explanationText
+                });
+                existingItem.imgUrl = svgBase64;
+                existingItem.timestamp = fullTimestamp;
+                existingItem.booleanMap = pipelineData.booleanMap;
+                existingItem.regionList = pipelineData.regionList;
+                existingItem.isThreeSets = isThree;
+                
+                searchHistory = searchHistory.filter(item => item.expr !== exprStr);
+                searchHistory.unshift(existingItem);
+            } else {
+                const historyItem = {
+                    id: Date.now(),
+                    expr: exprStr,
+                    imgUrl: svgBase64,
+                    timestamp: fullTimestamp,
+                    setType: isThree ? "3-Sets Diagram" : (pipelineData.layoutType !== 'standard' ? pipelineData.layoutType : "2-Sets Diagram"),
+                    shadedSummary: `${shadedCount} / ${totalRegions} Shaded`,
+                    explanation: explanationText,
+                    booleanMap: pipelineData.booleanMap,
+                    regionList: pipelineData.regionList,
+                    isThreeSets: isThree,
+                    runs: [{
+                        timestamp: fullTimestamp,
+                        setType: isThree ? "3-Sets Diagram" : (pipelineData.layoutType !== 'standard' ? pipelineData.layoutType : "2-Sets Diagram"),
+                        shadedSummary: `${shadedCount} / ${totalRegions} Shaded`,
+                        explanation: explanationText
+                    }]
+                };
+                searchHistory.unshift(historyItem);
+            }
+
+            if (searchHistory.length > 20) searchHistory.pop();
+
+            try {
+                localStorage.setItem('venn_app_history', JSON.stringify(searchHistory));
+            } catch (e) {
+                console.warn('LocalStorage quota exceeded', e);
+            }
+
+            renderHistoryUI();
+        }
+
+        function renderHistoryUI() {
+            if (searchHistory.length === 0) {
+                historyContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-6">अभी कोई इतिहास उपलब्ध नहीं है। कृपया कोई व्यंजक रन करें।</p>`;
+                return;
+            }
+
+            historyContainer.innerHTML = '';
+            searchHistory.forEach((item) => {
+                const runCount = item.runs ? item.runs.length : 1;
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border border-slate-200 hover:border-indigo-400 rounded-xl p-3 flex flex-col sm:flex-row items-center gap-4 transition group shadow-sm";
+                
+                card.innerHTML = `
+                    <div class="w-28 h-20 bg-white rounded-lg overflow-hidden border border-slate-200 shrink-0 flex items-center justify-center p-1 relative cursor-pointer thumbnail-preview shadow-inner">
+                        <img src="${item.imgUrl}" class="w-full h-full object-contain group-hover:scale-105 transition duration-200" alt="Venn Thumbnail">
+                        <div class="absolute inset-0 bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs backdrop-blur-[1px]">
+                            <i class="fa-solid fa-expand text-indigo-700"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow w-full flex flex-col justify-between gap-1.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="font-code text-sm font-bold text-indigo-600">${item.expr}</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200 font-mono" title="कुल कितनी बार यह फार्मूला रन हुआ">${runCount} बार रन हुआ</span>
+                            </div>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono border border-indigo-200">${item.setType}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 truncate"><strong class="text-slate-700">शेड क्षेत्र:</strong> ${item.explanation}</p>
+                        <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200">
+                            <span><i class="fa-regular fa-clock mr-1"></i>अंतिम बार: ${item.timestamp}</span>
+                            <div class="flex items-center gap-2">
+                                <button class="load-btn px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white transition font-medium border border-indigo-200">
+                                    <i class="fa-solid fa-arrow-rotate-right mr-1"></i>लोड करें
+                                </button>
+                                <button class="fullscreen-btn px-2 py-1 rounded bg-white text-slate-700 hover:bg-slate-100 transition font-medium border border-slate-200">
+                                    <i class="fa-solid fa-maximize mr-1"></i>फुल-स्क्रीन
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                card.querySelector('.thumbnail-preview').addEventListener('click', () => openFullscreenModal(item));
+                card.querySelector('.fullscreen-btn').addEventListener('click', () => openFullscreenModal(item));
+                card.querySelector('.load-btn').addEventListener('click', () => {
+                    exprInput.value = item.expr;
+                    runTwoPassArchitecture();
+                });
+
+                historyContainer.appendChild(card);
+            });
+        }
+
+        function openFullscreenModal(item) {
+            currentModalItem = item;
+            modalTitleExpr.textContent = `व्यंजक कच्चा-चिट्ठा: ${item.expr}`;
+            const totalRuns = item.runs ? item.runs.length : 1;
+            modalTimestamp.textContent = `अंतिम निष्पादन: ${item.timestamp}`;
+            modalRunCountBadge.textContent = `${totalRuns} Runs Recorded`;
+            modalSvgImage.src = item.imgUrl;
+            modalExplanation.innerHTML = `<strong>शेड किए गए क्षेत्र (${item.shadedSummary}):</strong><br/>${item.explanation}`;
+
+            modalMetricRuns.textContent = totalRuns;
+            modalMetricShaded.textContent = item.shadedSummary;
+            modalMetricType.textContent = item.setType;
+
+            const isThree = item.isThreeSets;
+            const bMap = item.booleanMap || {};
+            const rList = item.regionList || (isThree ? REGIONS_3 : REGIONS_2);
+
+            if (isThree) {
+                modalTableHeaderRow.innerHTML = `
+                    <th class="p-2 border-b border-slate-200">Bitmask</th>
+                    <th class="p-2 border-b border-slate-200">Region</th>
+                    <th class="p-2 border-b border-slate-200 text-center">A</th>
+                    <th class="p-2 border-b border-slate-200 text-center">B</th>
+                    <th class="p-2 border-b border-slate-200 text-center">C</th>
+                    <th class="p-2 border-b border-slate-200 text-right">Shaded?</th>
+                `;
+            } else {
+                modalTableHeaderRow.innerHTML = `
+                    <th class="p-2 border-b border-slate-200">Bitmask</th>
+                    <th class="p-2 border-b border-slate-200">Region</th>
+                    <th class="p-2 border-b border-slate-200 text-center">A</th>
+                    <th class="p-2 border-b border-slate-200 text-center">B</th>
+                    <th class="p-2 border-b border-slate-200 text-right">Shaded?</th>
+                `;
+            }
+
+            modalTruthTableBody.innerHTML = '';
+            rList.forEach(r => {
+                const isShaded = !!bMap[r.id];
+                const tr = document.createElement('tr');
+                tr.className = isShaded ? "bg-indigo-50 text-indigo-900 font-medium" : "text-slate-600 hover:bg-slate-50";
+                const bitStr = `0b${r.bit.toString(2).padStart(isThree ? 3 : 2, '0')}`;
+                const badge = isShaded 
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-indigo-600 text-white shadow-sm">Shaded (1)</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-slate-200 text-slate-600">Unshaded (0)</span>`;
+
+                if (isThree) {
+                    tr.innerHTML = `
+                        <td class="p-2 font-code text-indigo-600">${bitStr}</td>
+                        <td class="p-2">${r.hindi}</td>
+                        <td class="p-2 text-center">${r.a ? '1' : '0'}</td>
+                        <td class="p-2 text-center">${r.b ? '1' : '0'}</td>
+                        <td class="p-2 text-center">${r.c ? '1' : '0'}</td>
+                        <td class="p-2 text-right">${badge}</td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="p-2 font-code text-indigo-600">${bitStr}</td>
+                        <td class="p-2">${r.hindi}</td>
+                        <td class="p-2 text-center">${r.a ? '1' : '0'}</td>
+                        <td class="p-2 text-center">${r.b ? '1' : '0'}</td>
+                        <td class="p-2 text-right">${badge}</td>
+                    `;
+                }
+                modalTruthTableBody.appendChild(tr);
+            });
+
+            modalTimelineTableBody.innerHTML = '';
+            if (item.runs && item.runs.length > 0) {
+                item.runs.forEach((run, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = idx === 0 ? "bg-indigo-50 text-indigo-900 font-medium" : "text-slate-600 hover:bg-slate-50";
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-bold text-indigo-600">#${idx + 1}</td>
+                        <td class="p-2.5">${run.setType}</td>
+                        <td class="p-2.5">${run.timestamp}</td>
+                        <td class="p-2.5 text-right font-medium text-slate-700">${run.explanation}</td>
+                    `;
+                    modalTimelineTableBody.appendChild(tr);
+                });
+            }
+
+            fullscreenModal.classList.remove('hidden');
+        }
+
+        function renderCommandStreamLog(commands) {
+            commandTerminal.innerHTML = '';
+            commandCountBadge.textContent = `${commands.length} Commands`;
+
+            commands.forEach((cmd, idx) => {
+                const logDiv = document.createElement('div');
+                logDiv.className = "log-entry border-b border-slate-200 pb-1 flex items-start gap-2 text-[11px]";
+
+                let badgeColor = "bg-slate-100 text-slate-600 border border-slate-200";
+                if (cmd.type === 'HIGHLIGHT_REGION') badgeColor = "bg-indigo-50 text-indigo-700 border border-indigo-200";
+                if (cmd.type === 'CLEAR_REGION') badgeColor = "bg-slate-100 text-slate-500";
+                if (cmd.type === 'INIT_CANVAS') badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+
+                logDiv.innerHTML = `
+                    <span class="text-slate-400 font-code shrink-0">[#${idx + 1}]</span>
+                    <span class="px-1.5 py-0.5 rounded font-code text-[10px] uppercase shrink-0 ${badgeColor}">${cmd.type}</span>
+                    <span class="text-slate-700 font-code leading-relaxed truncate">${cmd.description}</span>
+                `;
+                commandTerminal.appendChild(logDiv);
+            });
+        }
+
+        function renderBooleanMatrix(pipelineData) {
+            const { isThreeSets, booleanMap, regionList, layoutType } = pipelineData;
+            
+            if (isThreeSets) {
+                setCountBadge.textContent = "3-Sets Diagram";
+            } else if (layoutType === 'subset_A_in_B') {
+                setCountBadge.textContent = "Subset (A ⊂ B)";
+            } else if (layoutType === 'subset_B_in_A') {
+                setCountBadge.textContent = "Subset (B ⊂ A)";
+            } else if (layoutType === 'disjoint') {
+                setCountBadge.textContent = "Disjoint Sets (असंयुक्त)";
+            } else {
+                setCountBadge.textContent = "2-Sets Diagram";
+            }
+
+            let shadedCount = Object.values(booleanMap).filter(Boolean).length;
+            const total = regionList.length;
+            shadedSummaryBadge.textContent = `${shadedCount} / ${total} Shaded`;
+
+            let shadedNames = regionList.filter(r => booleanMap[r.id]).map(r => r.hindi);
+
+            if (shadedNames.length === 0) {
+                verbalExplanation.innerHTML = `व्यंजक के लिए कोई भी क्षेत्र छायांकित (Highlight) नहीं है (रिक्त समुच्चय / ∅)।`;
+            } else if (shadedNames.length === total) {
+                verbalExplanation.innerHTML = `व्यंजक संपूर्ण सार्वत्रिक समुच्चय (Universal Set U) को कवर करता है।`;
+            } else {
+                verbalExplanation.innerHTML = `व्यंजक में निम्नलिखित ${shadedNames.length} क्षेत्र रंग भरे जाने के लिए निर्धारित हैं:<br/>` +
+                    `<ul class="list-disc list-inside mt-1 font-medium text-indigo-600">` +
+                    shadedNames.map(n => `<li>${n}</li>`).join('') +
+                    `</ul>`;
+            }
+
+            if (isThreeSets) {
+                tableHeaderRow.innerHTML = `
+                    <th class="p-2.5 border-b border-slate-200">Bitmask</th>
+                    <th class="p-2.5 border-b border-slate-200">Region</th>
+                    <th class="p-2.5 border-b border-slate-200 text-center">A</th>
+                    <th class="p-2.5 border-b border-slate-200 text-center">B</th>
+                    <th class="p-2.5 border-b border-slate-200 text-center">C</th>
+                    <th class="p-2.5 border-b border-slate-200 text-right">Shaded?</th>
+                `;
+            } else {
+                tableHeaderRow.innerHTML = `
+                    <th class="p-2.5 border-b border-slate-200">Bitmask</th>
+                    <th class="p-2.5 border-b border-slate-200">Region</th>
+                    <th class="p-2.5 border-b border-slate-200 text-center">A</th>
+                    <th class="p-2.5 border-b border-slate-200 text-center">B</th>
+                    <th class="p-2.5 border-b border-slate-200 text-right">Shaded?</th>
+                `;
+            }
+
+            truthTableBody.innerHTML = '';
+            regionList.forEach(r => {
+                const isShaded = booleanMap[r.id];
+                const tr = document.createElement('tr');
+                tr.className = isShaded 
+                    ? "bg-indigo-50/70 text-indigo-900 font-medium" 
+                    : "text-slate-600 hover:bg-slate-50";
+
+                const bitStr = `0b${r.bit.toString(2).padStart(isThreeSets ? 3 : 2, '0')}`;
+                const badge = isShaded 
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-indigo-600 text-white shadow-sm">Shaded (1)</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-slate-200 text-slate-600">Unshaded (0)</span>`;
+
+                if (isThreeSets) {
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-code text-indigo-600">${bitStr}</td>
+                        <td class="p-2.5">${r.hindi}</td>
+                        <td class="p-2.5 text-center">${r.a ? '1' : '0'}</td>
+                        <td class="p-2.5 text-center">${r.b ? '1' : '0'}</td>
+                        <td class="p-2.5 text-center">${r.c ? '1' : '0'}</td>
+                        <td class="p-2.5 text-right">${badge}</td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-code text-indigo-600">${bitStr}</td>
+                        <td class="p-2.5">${r.hindi}</td>
+                        <td class="p-2.5 text-center">${r.a ? '1' : '0'}</td>
+                        <td class="p-2.5 text-center">${r.b ? '1' : '0'}</td>
+                        <td class="p-2.5 text-right">${badge}</td>
+                    `;
+                }
+                truthTableBody.appendChild(tr);
+            });
+        }
+
+        window.onload = function() {
+            renderHistoryUI();
+            runTwoPassArchitecture();
+        };
+    </script>
+</body>
+</html>
